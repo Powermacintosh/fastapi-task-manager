@@ -1,0 +1,118 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    env_file:
+      - .env
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        chmod +x /app/scripts/*.sh &&
+        /app/scripts/init_db.sh &&
+        poetry run uvicorn main:app \
+          --host 0.0.0.0 \
+          --port ${APP_PORT} \
+          --log-config /app/configs/log_config.ini
+    depends_on:
+      db:
+        condition: service_healthy
+      loki:
+        condition: service_started
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "${LOKI_PORT}"
+    volumes:
+      - ./configs/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command:
+      - -config.expand-env=true
+      - -config.file=/etc/loki/local-config.yaml
+    environment:
+      LOKI_PORT: ${LOKI_PORT}
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./configs/promtail-config.yaml:/etc/promtail/config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command:
+      - -config.expand-env=true
+      - -config.file=/etc/promtail/config.yaml
+    environment:
+      LOKI_URL: http://loki:${LOKI_PORT}/loki/api/v1/push
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+
+  test_db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}"
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .test.env
+    environment:
+      - ENVIRONMENT=test
+    depends_on:
+      test_db:
+        condition: service_healthy
+      loki:
+        condition: service_started
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        chmod +x /app/scripts/*.sh &&
+        /app/scripts/init_test_db.sh &&
+        poetry install &&
+        pytest
+
+volumes:
+  db_data:
+  test_db_data:
+  loki_data:
+  grafana_data:
