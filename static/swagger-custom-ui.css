@@ -3,9 +3,9 @@
   --dark-header-hover-color: rgb(0, 0, 0, 0.02);
   --dark-color: #3b4151;
   /* #c2c3d0 #b7c3ce #51667A #9AA2C4*/
-  --dark-background-color: #bac2e2;
-  --dark-2-background-color: #bac2e2;
-  --dark-3-background-color: #c9d1f5;
+  /* --dark-background-color: #bac2e2; */
+  --dark-2-background-color: rgb(193, 202, 243);
+  --dark-3-background-color: rgb(193, 202, 243);
   --dark-border-color: #3b4151;
   --dark-2-border-color: #3b3151;
 

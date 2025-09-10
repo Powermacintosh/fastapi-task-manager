@@ -1,4 +1,4 @@
-import uvicorn, pathlib
+import uvicorn
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +6,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.docs import get_swagger_ui_html
 from core.config import settings
 from api_v1 import router as router_v1
+
+import logging.config
+from core.logger import logger_config
 
 app = FastAPI(
     title='API Manager Tasks',
@@ -37,6 +40,5 @@ app.include_router(router=router_v1, prefix=settings.api_v1_prefix)
 
 
 if __name__ == '__main__':
-    cwd = pathlib.Path(__file__).parent.resolve()
-    # uvicorn.run('main:app', host='0.0.0.0', port=settings.api_v1_port, reload=True)
-    uvicorn.run('main:app', host='0.0.0.0', port=settings.api_v1_port, reload=False, log_config=f'{cwd}/configs/log_config.ini')
+    logging.config.dictConfig(logger_config, disable_existing_loggers=False)
+    uvicorn.run('main:app', host='0.0.0.0', port=settings.api_v1_port, reload=False)

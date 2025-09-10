@@ -20,13 +20,17 @@ async def create_task(
     task: TaskCreate,
     session: AsyncSession = Depends(db_fastapi_connect.scoped_session_dependency)
 ):
-    """
-    Создает новую задачу.
+    """Создает новую задачу.
 
-    param task: Задача, которую нужно создать.
-    param session: Асинхронная сессия базы данных.
-    return: Созданная задача.
-    raises HTTPException: При возникновении ошибки.
+    | Параметр | Тип         | Описание                               |
+    |----------|-------------|----------------------------------------|
+    | task     | TaskCreate  | Задача, которую нужно создать.         |
+
+    Возвращает:
+        SchemaTask: Созданная задача. `201`
+
+    Исключения:
+        HTTPException: При возникновении ошибки.
     """
     return await TaskCRUD.create_task(session=session, task=task)
 
@@ -38,8 +42,15 @@ async def get_task(
     """
     Получает задачу по ID.
 
-    param task: Задача, которую нужно получить.
-    return: Задача.
+    | Параметр | Тип         | Описание                               |
+    |----------|-------------|----------------------------------------|
+    | task     | SchemaTask  | Задача, которую нужно получить.        |
+
+    Возвращает:
+        SchemaTask: Задача. `200`
+    
+    Исключения:
+        HTTPException: При возникновении ошибки.
     """
     return task
 
@@ -53,11 +64,15 @@ async def update_task(
     """
     Полностью обновляет задачу по ID.
 
-    param task_update: Обновленная задача.
-    param task: Задача, которую нужно обновить.
-    param session: Асинхронная сессия базы данных.
-    return: Обновленная задача.
-    raises HTTPException: При возникновении ошибки.
+    | Параметр    | Тип           | Описание                                |
+    |-------------|---------------|-----------------------------------------|
+    | task        | SchemaTask    | Задача, которую нужно обновить.         |
+    
+    Возвращает:
+        SchemaTask: Обновленная задача. `200`
+    
+    Исключения:
+        HTTPException: При возникновении ошибки.
     """
     return await TaskCRUD.update_task(
         session=session,
@@ -75,11 +90,15 @@ async def update_partial_task(
     """
     Частично обновляет задачу по ID.
 
-    param task_update: Поля для частичного обновления задачи.
-    param task: Задача, которую нужно обновить.
-    param session: Асинхронная сессия базы данных.
-    return: Обновленная задача.
-    raises HTTPException: При возникновении ошибки.
+    | Параметр    | Тип                   | Описание                                |
+    |-------------|-----------------------|-----------------------------------------|
+    | task        | SchemaTask            | Задача, которую нужно обновить.         |
+    
+    Возвращает:
+        SchemaTask: Обновленная задача. `200`
+    
+    Исключения:
+        HTTPException: При возникновении ошибки.
     """
     return await TaskCRUD.update_task(
         session=session,
@@ -97,10 +116,15 @@ async def delete_task(
     """
     Удаляет задачу по ID.
 
-    param task: Задача, которую нужно удалить.
-    param session: Асинхронная сессия базы данных.
-    return: None
-    raises HTTPException: При возникновении ошибки.
+    | Параметр    | Тип           | Описание                                |
+    |-------------|---------------|-----------------------------------------|
+    | task        | SchemaTask    | Задача, которую нужно удалить.          |
+    
+    Возвращает:
+        None: `204`
+    
+    Исключения:
+        HTTPException: При возникновении ошибки.
     """
     return await TaskCRUD.delete_task(
         session=session,
@@ -121,15 +145,20 @@ async def get_list_tasks(
     """
     Получает список задач.
 
-    param column_search: Поле для поиска.
-    param input_search: Значение для поиска.
-    param column: Поле для сортировки.
-    param sort: Направление сортировки.
-    param page: Номер страницы.
-    param limit: Количество задач на странице.
-    param session: Асинхронная сессия базы данных.
-    return: Список задач c пагинацией.
-    raises HTTPException: При возникновении ошибки.
+    | Параметр      | Тип           | Описание                                |
+    |---------------|---------------|-----------------------------------------|
+    | column_search | str           | Поле для поиска.                        |
+    | input_search  | str           | Значение для поиска.                    |
+    | column        | str           | Поле для сортировки.                    |
+    | sort          | str           | Направление сортировки.                 |
+    | page          | int           | Номер страницы.                         |
+    | limit         | int           | Количество задач на странице.           |
+    
+    Возвращает:
+        TasksResponseSchema: Список задач c пагинацией. `200`
+    
+    Исключения:
+        HTTPException: При возникновении ошибки.
     """
     return await TaskCRUD.get_tasks(
         session=session,
