@@ -113,7 +113,7 @@ class TaskCRUD:
     async def update_task(
         cls,
         session: AsyncSession,
-        task: SchemaTask,
+        task: Task,
         task_update: TaskUpdate | TaskUpdatePartial,
         partial: bool = False,
     ) -> Task | None:

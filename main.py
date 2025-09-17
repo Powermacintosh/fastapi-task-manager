@@ -10,6 +10,8 @@ from api_v1 import router as router_v1
 import logging.config
 from core.logger import logger_config
 
+logging.config.dictConfig(logger_config)
+
 app = FastAPI(
     title='API Manager Tasks',
     description='Простой менеджер задач на FastAPI с использованием асинхронного драйвера для SQLAlchemy и базы данных PostgreSQL',
@@ -40,5 +42,4 @@ app.include_router(router=router_v1, prefix=settings.api_v1_prefix)
 
 
 if __name__ == '__main__':
-    logging.config.dictConfig(logger_config, disable_existing_loggers=False)
-    uvicorn.run('main:app', host='0.0.0.0', port=settings.api_v1_port, reload=False)
+    uvicorn.run('main:app', host='0.0.0.0', port=settings.api_v1_port, reload=True)
